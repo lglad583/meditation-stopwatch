@@ -29,7 +29,18 @@ Requires Android SDK 35 and JDK 17.
 ```
 
 The APK lands in `app/build/outputs/apk/debug/app-debug.apk`. Install with
-`adb install -r app/build/outputs/apk/debug/app-debug.apk`.
+`adb install -r app/build/outputs/apk/debug/app-debug.apk`, or grab a prebuilt one from the
+[releases page](../../releases).
+
+### Emulator
+
+```
+./emulate.sh                  # NixOS: create a Pixel 6 / API 35 AVD, boot it, build, install, launch
+GPU=swiftshader_indirect ./emulate.sh   # software rendering if the host GPU path fails
+```
+
+The first run downloads the emulator and system image (about 1.5 GB). Re-running while the
+emulator is up only reinstalls and relaunches. Needs `/dev/kvm` and a display.
 
 ## Layout
 
@@ -46,3 +57,7 @@ tools/validate-shader.sh   compile-check a movement body with glslangValidator
 
 `./build.sh testDebugUnitTest` runs breath/intensity model tests and dumps every movement shader to
 `app/build/shaders/` for offline validation.
+
+## Licence
+
+Apache License 2.0 – see [LICENSE](LICENSE).

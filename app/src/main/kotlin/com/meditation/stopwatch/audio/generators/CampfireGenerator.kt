@@ -43,7 +43,7 @@ private const val FIRE_CRACKLE_AMP = 0.28f
 class CampfireGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.CAMPFIRE
 
-    private val rng = FastRandom(0x4F1E5C0A9B3D7E62L)
+    private val rng = FastRandom(0x4F1E5C0A9B3D7E62L xor System.nanoTime())
     private var sr = 0
     private val pan = FloatArray(2)
 

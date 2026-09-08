@@ -59,7 +59,7 @@ private const val RAIN_RELEASE_INV = 1f / RAIN_RELEASE
 class RainGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.RAIN
 
-    private val rng = FastRandom(0x5A17C3E9B2D48F61L)
+    private val rng = FastRandom(0x5A17C3E9B2D48F61L xor System.nanoTime())
     private var sr = 0
     private val pan = FloatArray(2)
 

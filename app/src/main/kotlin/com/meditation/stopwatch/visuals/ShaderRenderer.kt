@@ -5,6 +5,7 @@ import android.opengl.GLSurfaceView
 import android.util.Log
 import com.meditation.stopwatch.session.Breath
 import com.meditation.stopwatch.session.IntensityCurve
+import com.meditation.stopwatch.session.SessionSeed
 import com.meditation.stopwatch.session.SessionClock
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
@@ -12,7 +13,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.sin
-import kotlin.random.Random
 
 /**
  * OpenGL ES 3.0 renderer that draws [Movements.all] full screen, one program per movement.
@@ -26,7 +26,7 @@ import kotlin.random.Random
  *     paused, 0 while idle).  While idle a 10 s sine drives the breath so the opening glow still
  *     breathes, and a short blend hides the discontinuity when the session starts or is reset.
  *   - uTime is integrated here from frame deltas, so it always flows – even on a paused screen –
- *     at 0.35 + 0.65 * intensity of real time.
+ *     at 0.5 + 0.9 * intensity of real time.
  *
  * GL objects (VAO, programs, uniform locations) are (re)built in [onSurfaceCreated] and never
  * cached across contexts.  Compiling every movement up front would delay the first frame by a
@@ -50,7 +50,10 @@ class ShaderRenderer(private val clock: SessionClock) : GLSurfaceView.Renderer {
     private val movements: List<Movement> = Movements.all
     /** At least one slot so the fallback glow is drawn even if the movement list is empty. */
     private val movementCount: Int = maxOf(1, movements.size)
-    private val seed: Float = Random.nextFloat() * 1000f
+    /** uSeed (0..1000) and the movement order, both derived from [SessionClock.seed]. */
+    private var seed: Float = 0f
+    private var order: IntArray = IntArray(movementCount) { it }
+    private var seedSource: Long = 0L
 
     // ---- GL names – valid only for the current context, rebuilt in onSurfaceCreated ----
     private var programs: Array<Program?> = arrayOfNulls<Program>(movementCount)
@@ -145,9 +148,15 @@ class ShaderRenderer(private val clock: SessionClock) : GLSurfaceView.Renderer {
 
         // ---- session sample ----
         val started = clock.hasStarted
+        if (clock.seed != seedSource) {
+            seedSource = clock.seed
+            seed = SessionSeed.unit(seedSource, 0) * 1000f
+            order = programmeOrder(seedSource, movementCount)
+            Log.d(TAG, "session seed ${seedSource.toString(16)}: uSeed=%.1f order=${order.joinToString(",")}".format(seed))
+        }
         val sec = if (started) clock.elapsedSec() else 0.0
         val i = if (started) IntensityCurve.at(sec) else 0f
-        animTime += dt * (0.35 + 0.65 * i)
+        animTime += dt * (0.5 + 0.9 * i)
 
         // ---- breath ----
         if (started != wasStarted) {
@@ -194,9 +203,9 @@ class ShaderRenderer(private val clock: SessionClock) : GLSurfaceView.Renderer {
             drawPass(program(0), 1f)
         } else {
             val seg = (sec / SEGMENT_SEC).toInt()
-            val cur = programmeIndex(seg, movementCount)
+            val cur = order[programmeIndex(seg, movementCount)]
             val into = sec - seg * SEGMENT_SEC - (SEGMENT_SEC - CROSSFADE_SEC)   // >= 0 inside the crossfade
-            val next = if (into >= 0.0) programmeIndex(seg + 1, movementCount) else cur
+            val next = if (into >= 0.0) order[programmeIndex(seg + 1, movementCount)] else cur
             drawPass(program(cur), 1f)
             if (next != cur) {
                 GLES30.glEnable(GLES30.GL_BLEND)
@@ -387,6 +396,19 @@ class ShaderRenderer(private val clock: SessionClock) : GLSurfaceView.Renderer {
             count <= 1 -> 0
             segment < count -> segment
             else -> 1 + (segment - 1) % (count - 1)
+        }
+
+        /**
+         * The order the movements are visited in this session: slot 0 is always the opening
+         * movement (it is also the idle screen), slots 1..count-1 are a seeded shuffle of the rest.
+         */
+        fun programmeOrder(seed: Long, count: Int): IntArray {
+            val order = IntArray(count) { it }
+            for (i in count - 1 downTo 2) {
+                val j = 1 + (SessionSeed.unit(seed, 100 + i) * i).toInt().coerceIn(0, i - 1)
+                val t = order[i]; order[i] = order[j]; order[j] = t
+            }
+            return order
         }
 
         private fun smoothstep(x: Double): Double {

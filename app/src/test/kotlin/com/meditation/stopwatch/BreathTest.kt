@@ -29,10 +29,16 @@ class BreathTest {
         val a = Breath.cyclesAt(Breath.RAMP_SECONDS + 100); val b = Breath.cyclesAt(Breath.RAMP_SECONDS + 112)
         assertEquals(1.0, b - a, 1e-6)
     }
-    @Test fun intensityRampsQuicklyButStaysBounded() {
+    @Test fun intensityRampsQuicklyThenKeepsBuilding() {
         assertEquals(0f, IntensityCurve.at(0.0), 1e-6f)
         assertTrue(IntensityCurve.at(60.0) > 0.3f)
-        assertTrue(IntensityCurve.at(240.0) > 0.75f)
+        assertTrue(IntensityCurve.at(240.0) > 0.6f)
+        // the slow component must still be visibly at work deep into the session; average over the
+        // longest tide period (211 s) so the sine tides cannot mask or fake the trend
+        fun mean(from: Double): Float { var s = 0f; for (k in 0 until 211) s += IntensityCurve.at(from + k); return s / 211 }
+        assertTrue(mean(1200.0) > mean(600.0) + 0.06f)
+        assertTrue(mean(2400.0) > mean(1200.0) + 0.06f)
+        assertTrue(mean(3400.0) > 0.9f)
         var t = 0.0
         while (t < 3600) { val v = IntensityCurve.at(t); assertTrue(v in 0f..1f); t += 0.5 }
     }

@@ -48,7 +48,7 @@ import kotlinx.coroutines.flow.drop
 /** Sheet background: the theme surface, slightly translucent so the visuals glow through. */
 internal val SheetColour = Color(0xF20E0B1C)
 
-/** Sounds play whenever their slider is up, so the sheet doubles as an audition panel. */
+/** Per-sound and master volume.  Sounds are heard only while the stopwatch is running. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SoundSheet(settings: SettingsRepository, onDismiss: () -> Unit) {
@@ -77,6 +77,12 @@ fun SoundSheet(settings: SettingsRepository, onDismiss: () -> Unit) {
                     Text("Mute all", color = Mist.copy(alpha = 0.7f))
                 }
             }
+            Text(
+                "Sounds play while the timer is running.",
+                color = Mist.copy(alpha = 0.5f),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Light,
+            )
             Spacer(Modifier.height(8.dp))
             SliderRow(
                 title = "Master volume",

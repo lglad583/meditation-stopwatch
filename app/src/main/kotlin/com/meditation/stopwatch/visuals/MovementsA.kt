@@ -56,28 +56,28 @@ object MovementsA {
             vec3 cRing = calmPalette(pal + 0.85, seedK) * 0.6 + 0.4;
 
             // haze: two chained fbm warps, drifting glacially, breathing in scale
-            float oct = 2.0 + 3.0 * I;
+            float oct = 2.5 + 3.0 * I;
             vec2 q = d * (1.4 - 0.06 * bw) + vec2(uTime * 0.008, -uTime * 0.006);
             vec2 w = vec2(fbmF(q + vec2(3.1, 1.7) + uTime * 0.004, oct),
                           fbmF(q + vec2(7.3, 5.9) - uTime * 0.003, oct));
             float haze = fbmF(q + (0.8 + 1.2 * I) * w, oct);
             haze = smoothstep(-0.25, 0.55, haze + 0.1 * uBreath);
-            haze *= exp(-rd * (1.2 - 0.6 * I));               // the haze clings to the light
+            haze *= exp(-rd * (0.6 - 0.3 * I));               // the haze clings to the light
 
             // rings: one born on each inhale, drifting outward slowly; they need intensity to be seen
             float k = 9.0 + 7.0 * I;
             float phase = rd * k - uTime * 0.25 - 0.6 * uBreath;
             float ring = 0.5 + 0.5 * cos(phase);
             ring = pow(ring, 6.0 + 6.0 * I);
-            ring *= exp(-rd * 1.6) * smoothstep(0.08, 0.35, rd);
+            ring *= exp(-rd * 1.0) * smoothstep(0.08, 0.35, rd);
 
-            vec3 col = cHaze * haze * (0.35 * I * (0.4 + 0.6 * uBreath));
-            col += cRing * ring * (0.25 * I * (0.6 + 0.4 * uBreath));
-            col = saturate3(col, 0.3 + 0.7 * I);
-            col *= (0.5 + 0.5 * I);
+            vec3 col = cHaze * haze * (2.0 * I * (0.6 + 0.4 * uBreath));
+            col += cRing * ring * (1.4 * I * (0.6 + 0.4 * uBreath));
+            col = saturate3(col, 0.55 + 0.6 * I);
+            col *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // the breathing core is the only light at zero intensity
-            col += cCore * core * (0.03 + 0.08 * uBreath) * (1.0 + 2.5 * I);
+            col += cCore * core * (0.04 + 0.10 * uBreath) * (1.0 + 4.0 * I);
             return col;
         }
     """.trimIndent()
@@ -136,9 +136,9 @@ object MovementsA {
                 col += (fill + rim) * c * w * (0.55 + 0.45 * exp(-fi * 0.18));
             }
 
-            col *= 0.35;
-            col = saturate3(col, 0.3 + 0.7 * I);
-            col *= I * (0.5 + 0.5 * I);
+            col *= 0.6;
+            col = saturate3(col, 0.55 + 0.6 * I);
+            col *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // the flower's heart breathes at zero intensity
             float core = exp(-r * r / (0.05 + 0.02 * uBreath));
@@ -208,8 +208,8 @@ object MovementsA {
             vec3 cBand = calmPalette(idx + 0.65, seedK);
             vec3 col = cOrn * (rings * 0.55 + spokes * 0.35) + cPool * pool * 0.35 + cBand * band * 0.25;
             col *= exp(-r * 0.5);                             // the wheel's edge sinks into darkness
-            col = saturate3(col, 0.3 + 0.7 * I);
-            col *= I * (0.5 + 0.5 * I);
+            col = saturate3(col, 0.55 + 0.6 * I);
+            col *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // the hub breathes at zero intensity
             col += cPool * (0.02 + 0.06 * uBreath) * exp(-r * r * 4.0) * (1.0 + 2.0 * I);
@@ -271,8 +271,8 @@ object MovementsA {
             vec3 col = fr * (tint * 0.7 + 0.3);
             col *= 0.6 * (0.7 + 0.3 * uBreath);
             col *= exp(-r * 0.6);
-            col = saturate3(col, 0.3 + 0.7 * I);
-            col *= I * (0.5 + 0.5 * I);
+            col = saturate3(col, 0.55 + 0.6 * I);
+            col *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // a soft lamp at the centre breathes at zero intensity
             col += (tint * 0.5 + 0.5) * (0.02 + 0.06 * uBreath) * exp(-r * r * 3.0) * (1.0 + 2.0 * I);

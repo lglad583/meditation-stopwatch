@@ -103,8 +103,8 @@ object MovementsB {
             // fog: the far tunnel (small radius) sinks into darkness; intensity lets us see deeper
             float vis = 1.0 - exp(-r * (3.0 + 3.0 * I));
             col *= vis;
-            col = saturate3(col, 0.35 + 0.65 * I);
-            col *= I * (0.55 + 0.45 * I);
+            col = saturate3(col, 0.55 + 0.6 * I);
+            col *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // the breathing light at the end of the tunnel: the only thing visible at zero intensity
             vec3 fogCol = calmPalette(idx * 0.2 + 0.1, seedK);
@@ -196,8 +196,8 @@ object MovementsB {
             stars *= (1.0 - alpha);
 
             vec3 col = acc * 1.6 + stars * 0.8;
-            col = saturate3(col, 0.35 + 0.65 * I);
-            col *= I * (0.5 + 0.5 * I);
+            col = saturate3(col, 0.55 + 0.6 * I);
+            col *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // the nebula's heart breathes even at zero intensity, wandering slowly across the sky
             vec2 heart = vec2(sin(t * 0.007 + uSeed * 0.2), cos(t * 0.005 + uSeed * 0.4)) * 0.35;
@@ -260,8 +260,8 @@ object MovementsB {
             vec3 stone = calmPalette(idx, seedK);
             vec3 light = calmPalette(idx + 0.4, seedK) * 0.6 + 0.4;
             vec3 col = stone * (glow * 0.45) + light * (arch * 0.7 + rib * 0.5);
-            col = saturate3(col, 0.3 + 0.7 * I);
-            col *= I * (0.5 + 0.5 * I);
+            col = saturate3(col, 0.55 + 0.6 * I);
+            col *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // a dim rose window breathes at the crossing: the only light at zero intensity
             col += calmPalette(idx * 0.3 + 0.2, seedK) * (0.018 + 0.05 * uBreath) * exp(-dot(p, p) * 2.5) * (1.0 + 1.5 * I);
@@ -354,8 +354,8 @@ object MovementsB {
             float lum = ink * ink * (0.5 + 0.5 * ink);
             vec3 outc = col * (lum * 0.9);
             outc += (c4 * 0.5 + 0.5) * (edge * (0.2 + 0.6 * I) * (0.6 + 0.4 * uBreath));
-            outc = saturate3(outc, 0.25 + 0.85 * I);
-            outc *= I * (0.5 + 0.5 * I);
+            outc = saturate3(outc, 0.5 + 0.7 * I);
+            outc *= smoothstep(0.0, 0.25, I) * (0.6 + 0.4 * I);
 
             // the vortex centre breathes faintly: the only light at zero intensity
             outc += calmPalette(slow + 0.1, seedK) * (0.018 + 0.05 * uBreath) * exp(-rr * 1.5) * (1.0 + 1.5 * I);

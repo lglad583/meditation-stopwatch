@@ -45,7 +45,7 @@ class ThunderGenerator : SoundGenerator {
 
     private var sr = 48_000
     private var initialised = false
-    private val rng = FastRandom(0x7A11D3A5C0FFEE01L)
+    private val rng = FastRandom(0x7A11D3A5C0FFEE01L xor System.nanoTime())
     private val pan = FloatArray(2)
 
     // ---- Distant bed --------------------------------------------------------------------------

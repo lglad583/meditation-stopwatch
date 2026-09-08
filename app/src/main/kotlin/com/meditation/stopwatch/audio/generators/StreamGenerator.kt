@@ -46,7 +46,7 @@ private const val STREAM_BUBBLE_AMP = 0.06f
 class StreamGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.STREAM
 
-    private val rng = FastRandom(0x73A9D1E4C2F6B085L)
+    private val rng = FastRandom(0x73A9D1E4C2F6B085L xor System.nanoTime())
     private var sr = 0
     private val pan = FloatArray(2)
 

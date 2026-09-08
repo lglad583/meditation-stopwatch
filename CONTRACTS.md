@@ -5,7 +5,8 @@ Package root: `com.meditation.stopwatch` (sources under `app/src/main/kotlin`).
 ## Shared, already written (do not modify without reason)
 - `session/Breath.kt` – `Breath.stateAt(elapsedSec): BreathState` (phase, fullness 0..1, velocity, stage, cycle, periodSec). Pure.
 - `session/IntensityCurve.kt` – `IntensityCurve.at(elapsedSec): Float` 0..1. Pure.
-- `session/SessionClock.kt` – `SessionClock` with `start()/pause()/toggle()/reset()/tick()`, `elapsedSec()`, `isRunning`, `hasStarted`, `state: StateFlow<SessionState>`.
+- `session/SessionClock.kt` – `SessionClock` with `start()/pause()/toggle()/reset()/tick()`, `elapsedSec()`, `isRunning`, `hasStarted`, `seed` (redrawn on each start from zero), `state: StateFlow<SessionState>`.
+- `session/SessionSeed.kt` – `SessionSeed.unit(seed, salt)` hashes the session seed to 0..1; use it for anything that should differ between sessions.
 - `Settings.kt` – `Settings` data class, `SettingsRepository.get(context)` with `settings: StateFlow<Settings>` and setters (`setVolume(id, v)`, `setMasterVolume`, `setBreathGuide`, `setBreathLabels`, `setKeepScreenOn`, `setRenderScale`, `muteAll`).
 - `audio/SoundId.kt` – enum of the 12 sounds.
 - `audio/SoundGenerator.kt` – `SoundGenerator` interface, `RenderContext`, `FastRandom`.
@@ -22,7 +23,7 @@ class AudioEngine(context: Context, clock: SessionClock, settings: SettingsRepos
     val isActive: Boolean
 }
 ```
-Sounds play whenever their volume > 0 (even before the stopwatch starts, so the user can audition them);
+Sounds play only while the stopwatch is running (idle and paused are silent);
 the engine reads `settings.settings.value` each buffer and smooths gains.
 
 ### visuals/Movements.kt  (+ MovementsA.kt / MovementsB.kt)

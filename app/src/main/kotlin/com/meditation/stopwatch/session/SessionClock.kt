@@ -25,6 +25,9 @@ class SessionClock {
     @Volatile private var everStarted = false
     @Volatile private var accumulatedNanos = 0L
     @Volatile private var startedAtNanos = 0L
+    /** Randomness for this session; redrawn whenever a session starts from zero. See [SessionSeed]. */
+    @Volatile var seed: Long = SessionSeed.fresh()
+        private set
 
     private val _state = MutableStateFlow(SessionState())
     val state: StateFlow<SessionState> = _state.asStateFlow()
@@ -41,6 +44,7 @@ class SessionClock {
 
     fun start() {
         if (running) return
+        if (!everStarted) seed = SessionSeed.fresh()   // a new sit, a new piece
         startedAtNanos = SystemClock.elapsedRealtimeNanos()
         running = true
         everStarted = true

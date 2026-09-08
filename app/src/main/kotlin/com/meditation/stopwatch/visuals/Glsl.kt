@@ -151,8 +151,11 @@ object Glsl {
             vec2 p = (uv - 0.5) * 2.0;
             p.x *= uAspect;
             vec3 c = scene(p, uv);
+            // vividness: the whole picture gains contrast and colour as the session deepens
+            c *= 1.4 + 1.1 * uIntensity;
+            c = saturate3(c, 1.1 + 0.3 * uIntensity);
             c = tonemap(c);
-            c *= mix(1.0, vignette(uv, 0.25), 0.6);
+            c *= mix(1.0, vignette(uv, 0.25), 0.35);
             c += grain(uv);
             fragColor = vec4(clamp(c, 0.0, 1.0), uFade);
         }

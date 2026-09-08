@@ -14,10 +14,16 @@ An Android meditation stopwatch that turns time into a slowly deepening audiovis
   (Threshold, Bloom, Mandala, Lumen, Descent, Nebula, Cathedral, Tide) that cross-fade every
   150 seconds. Fractals, kaleidoscopes, domain-warped colour fields, interference patterns and
   volumetric clouds, all moving at breathing speed.
-- **Intensity that builds quickly but subtly.** A saturating curve reaches roughly two thirds after
-  two minutes and 95 percent after six, so the piece is clearly evolving within the first minute
-  but never jumps. Iteration counts, saturation, fold order, warp depth and chromatic aberration
-  all follow it.
+- **Intensity that builds quickly, then never stops.** A fast curve carries the piece past half
+  within two minutes, so it is clearly evolving within the first half minute, and a slow one keeps
+  it climbing for the whole hour, roughly a tenth every ten minutes, without ever jumping. Iteration
+  counts, saturation, fold order, warp depth, chromatic aberration and animation speed all follow it.
+- **Never the same twice.** Every session draws a fresh seed: shader palettes and layouts, the
+  order the movements arrive in (the opening is always first), and the phases and periods of the
+  mix drift all follow it, and each sound generator randomises its own grain on creation.
+- **A living mix.** The soundscape lifts by seven decibels over the session, and every sound drifts
+  forward and back on its own slow tide, deeper as the intensity grows, so the balance you set keeps
+  shifting without touching a slider.
 
 ## Build
 

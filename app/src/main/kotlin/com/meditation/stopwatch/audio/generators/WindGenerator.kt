@@ -39,7 +39,7 @@ private const val WIND_NEEDLE_GAIN = 0.16f
 class WindGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.WIND
 
-    private val rng = FastRandom(0x57194DA3C6E8B0F2L)
+    private val rng = FastRandom(0x57194DA3C6E8B0F2L xor System.nanoTime())
     private var sr = 0
 
     private val pinkL = PinkFilter()

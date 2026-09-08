@@ -40,7 +40,7 @@ private const val OCEAN_FOAM_GAIN = 0.09f
 class OceanGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.OCEAN
 
-    private val rng = FastRandom(0x0CEA4B17D93E52F1L)
+    private val rng = FastRandom(0x0CEA4B17D93E52F1L xor System.nanoTime())
     private var sr = 0
 
     private val pinkL = PinkFilter()

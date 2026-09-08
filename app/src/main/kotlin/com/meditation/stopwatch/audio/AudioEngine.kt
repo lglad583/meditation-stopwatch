@@ -27,8 +27,8 @@ import kotlin.math.max
  *
  * Every block of [BLOCK_FRAMES] frames the thread samples the session clock, the guided-breath model
  * and the intensity curve into a [RenderContext], reads the user volumes from [SettingsRepository]
- * (a non-suspending StateFlow), and lets [Mixer] render and sum the sounds.  Sounds play whenever
- * their volume is non-zero, even while the stopwatch is idle, so the user can audition them.
+ * (a non-suspending StateFlow), and lets [Mixer] render and sum the sounds.  Sounds play only
+ * while the stopwatch is running; idle and paused sessions are silent (and the track is parked).
  *
  * Power: once every sound has been silent for more than [PARK_AFTER_SECONDS] the track is paused
  * and the thread polls the settings every [PARK_POLL_MS] instead of streaming zeros, so a muted app
@@ -288,16 +288,25 @@ class AudioEngine(
     }
 
     /**
-     * Target linear gain per sound: `volume² × master × focus`.  Squaring the slider value gives a
-     * roughly perceptual (loudness-linear) response so the lower half of the slider is useful.
+     * Target linear gain per sound: `volume² × master × focus × dynamics`.  Squaring the slider
+     * value gives a roughly perceptual (loudness-linear) response so the lower half of the slider
+     * is useful.  [SoundDynamics] then lifts the whole mix as the session intensifies and drifts
+     * every sound on its own slow tide, so the balance keeps evolving without any slider moving.
      */
     private fun computeTargets(out: FloatArray) {
         val s = settings.settings.value
-        val master = s.masterVolume.coerceIn(0f, 1f) * focusGain
+        // Sounds play only while the stopwatch is running: idle and paused fade to silence through
+        // the mixer's gain ramps, after which the engine parks the track.
+        val gate = if (clock.isRunning) 1f else 0f
+        val master = s.masterVolume.coerceIn(0f, 1f) * focusGain * gate
+        val sec = clock.elapsedSec()
+        val intensity = IntensityCurve.at(sec)
+        val lift = SoundDynamics.lift(intensity)
+        val seed = clock.seed
         val ids = SoundId.entries
         for (i in 0 until ids.size) {
             val v = s.volume(ids[i]).coerceIn(0f, 1f)
-            out[i] = v * v * master
+            out[i] = v * v * master * lift * SoundDynamics.drift(i, sec, intensity, seed)
         }
     }
 

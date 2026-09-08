@@ -48,7 +48,7 @@ private const val BROWN_SHARED = 0.35f
 class WhiteNoiseGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.WHITE_NOISE
 
-    private val rng = FastRandom(0x2A4B6C8D1E3F5A7BL)
+    private val rng = FastRandom(0x2A4B6C8D1E3F5A7BL xor System.nanoTime())
     private val lpL = Biquad()
     private val lpR = Biquad()
     private val intensity = OnePole(0.02f)
@@ -96,7 +96,7 @@ class WhiteNoiseGenerator : SoundGenerator {
 class PinkNoiseGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.PINK_NOISE
 
-    private val rng = FastRandom(0x3F1C7E9A5B2D4C61L)
+    private val rng = FastRandom(0x3F1C7E9A5B2D4C61L xor System.nanoTime())
     private val pinkL = PinkFilter()
     private val pinkR = PinkFilter()
     private val dcL = DcBlock(0.999f)
@@ -145,7 +145,7 @@ class PinkNoiseGenerator : SoundGenerator {
 class BrownNoiseGenerator : SoundGenerator {
     override val id: SoundId get() = SoundId.BROWN_NOISE
 
-    private val rng = FastRandom(0x17D9B3E5F0A2C486L)
+    private val rng = FastRandom(0x17D9B3E5F0A2C486L xor System.nanoTime())
     private val dcL = DcBlock(0.999f)
     private val dcR = DcBlock(0.999f)
     private val gain = Ramp(BROWN_GAIN)
